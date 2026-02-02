@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: adoption-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+    networks:
+      - adoption-net
+
+  api:
+    build: .
+    container_name: adoption-api
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+      MONGO_URL: mongodb://admin:password123@mongo:27017/adoption-db?authSource=admin
+      NODE_ENV: development
+    depends_on:
+      - mongo
+    networks:
+      - adoption-net
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+volumes:
+  mongo-data:
+
+networks:
+  adoption-net:
